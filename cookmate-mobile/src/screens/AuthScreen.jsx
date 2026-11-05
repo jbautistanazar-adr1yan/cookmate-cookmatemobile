@@ -19,6 +19,7 @@ export default function AuthScreen() {
   // Form Fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   
@@ -41,7 +42,7 @@ export default function AuthScreen() {
   };
 
   const handleDateChange = (event, selectedDate) => {
-    setShowDatePicker(Platform.OS === 'ios'); // keep open on iOS, close on Android selection
+    setShowDatePicker(Platform.OS === 'ios');
     if (selectedDate) {
       setBirthdate(selectedDate);
       setHasSelectedDate(true);
@@ -58,9 +59,29 @@ export default function AuthScreen() {
 
   const passStrength = getPasswordStrength(password);
 
+  // Helper function to translate Firebase Error Codes into friendly messages
+  const getFriendlyErrorMessage = (errorCode) => {
+    switch (errorCode) {
+      case 'auth/email-already-in-use':
+        return 'This email address is already registered. Please sign in instead.';
+      case 'auth/invalid-email':
+        return 'Please enter a valid email address.';
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+      case 'auth/invalid-credential':
+        return 'Invalid email or password. Please try again.';
+      case 'auth/weak-password':
+        return 'Your password should be at least 6 characters long.';
+      case 'auth/network-request-failed':
+        return 'Network error. Please check your internet connection.';
+      default:
+        return 'Something went wrong. Please try again.';
+    }
+  };
+
   const handleAuth = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please fill in email and password.');
+    if (!email.trim() || !password) {
+      Alert.alert('Missing Fields', 'Please fill in both email and password.');
       return;
     }
 
@@ -68,6 +89,11 @@ export default function AuthScreen() {
       if (isSignUp) {
         if (!firstName.trim() || !lastName.trim() || !hasSelectedDate) {
           Alert.alert('Missing Info', 'Please enter your first name, last name, and select your birthdate.');
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          Alert.alert('Password Error', 'Passwords do not match. Please check and try again.');
           return;
         }
 
@@ -92,11 +118,15 @@ export default function AuthScreen() {
           createdAt: new Date().toISOString()
         });
 
+        Alert.alert('Success', 'Account created successfully!');
+
       } else {
         await signInWithEmailAndPassword(auth, email.trim(), password);
+        Alert.alert('Success', 'Logged in successfully!');
       }
     } catch (error) {
-      Alert.alert('Authentication Error', error.message);
+      const friendlyMessage = getFriendlyErrorMessage(error.code);
+      Alert.alert(isSignUp ? 'Registration Error' : 'Sign In Error', friendlyMessage);
     }
   };
 
@@ -117,13 +147,7 @@ export default function AuthScreen() {
       setResetEmail('');
       setIsForgotOpen(false);
     } catch (error) {
-      console.error('Password reset error:', error);
-      let errorMsg = 'Failed to send password reset email.';
-      if (error.code === 'auth/user-not-found') {
-        errorMsg = 'No user account found with this email address.';
-      } else if (error.code === 'auth/invalid-email') {
-        errorMsg = 'Please enter a valid email address.';
-      }
+      const errorMsg = getFriendlyErrorMessage(error.code);
       Alert.alert('Reset Failed', errorMsg);
     } finally {
       setIsSendingReset(false);
@@ -138,7 +162,6 @@ export default function AuthScreen() {
     >
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.card}>
-          {/* Local Icon Asset Integration */}
           <View style={styles.logoContainer}>
             <Image 
               source={require('../../assets/images/icon.png')} 
@@ -175,7 +198,6 @@ export default function AuthScreen() {
                 </View>
               </View>
 
-              {/* Calendar Date Trigger Input */}
               <Text style={styles.label}>Birthdate</Text>
               <TouchableOpacity 
                 style={styles.datePickerInput} 
@@ -187,13 +209,12 @@ export default function AuthScreen() {
                 <Calendar size={16} color="#78716C" />
               </TouchableOpacity>
 
-              {/* Native Calendar Picker Modal */}
               {showDatePicker && (
                 <DateTimePicker
                   value={birthdate}
                   mode="date"
                   display={Platform.OS === 'ios' ? 'inline' : 'default'}
-                  maximumDate={new Date()} // Prevents future birthdates
+                  maximumDate={new Date()}
                   onChange={handleDateChange}
                 />
               )}
@@ -221,6 +242,20 @@ export default function AuthScreen() {
             placeholderTextColor="#A8A29E" 
           />
 
+          {isSignUp && (
+            <>
+              <Text style={styles.label}>Confirm Password</Text>
+              <TextInput 
+                style={styles.input} 
+                value={confirmPassword} 
+                onChangeText={setConfirmPassword} 
+                secureTextEntry 
+                placeholder="••••••••" 
+                placeholderTextColor="#A8A29E" 
+              />
+            </>
+          )}
+
           {isSignUp && password.length > 0 && (
             <View style={styles.strengthRow}>
               <Text style={styles.strengthText}>Password Strength: </Text>
@@ -228,12 +263,11 @@ export default function AuthScreen() {
             </View>
           )}
 
-          {/* Forgot Password Link (Only shown on Sign In view) */}
           {!isSignUp && (
             <TouchableOpacity 
               style={styles.forgotBtn} 
               onPress={() => {
-                setResetEmail(email); // Pre-fill with current email input if typed
+                setResetEmail(email);
                 setIsForgotOpen(true);
               }}
             >
@@ -245,7 +279,13 @@ export default function AuthScreen() {
             <Text style={styles.primaryBtnText}>{isSignUp ? 'CREATE ACCOUNT' : 'SIGN IN'}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => setIsSignUp(!isSignUp)} style={styles.toggleBtn}>
+          <TouchableOpacity 
+            onPress={() => {
+              setIsSignUp(!isSignUp);
+              setConfirmPassword('');
+            }} 
+            style={styles.toggleBtn}
+          >
             <Text style={styles.toggleText}>
               {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
             </Text>
