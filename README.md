@@ -1,16 +1,67 @@
-# React + Vite
+# CookMate 🍳
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+CookMate is a multi-platform recipe sharing and management system featuring both a **Web Application** and a **Mobile Application** connected via Firebase Authentication and Cloud Firestore.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 👥 Authors & Team Members
 
-## React Compiler
+* **[Adrian Nazar]**
+* **[Jenina Gail Ayuban]**
+* **[John Luc Bartolome]**
+* **[Yzaiah Patawaran]**
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🛠️ Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+* **Web Application:** React, Vite, Tailwind CSS, Lucide Icons
+* **Mobile Application:** React Native, Expo, Lucide React Native Icons
+* **Backend & Database:** Firebase Authentication, Cloud Firestore, Firebase Hosting
+
+---
+
+## 📋 Features
+
+* **User Authentication:** 
+  * Sign up with name, birthdate, email, and password.
+  * Password confirmation validation and friendly error handling.
+  * Email password reset support.
+* **Recipe Exploration:** 
+  * Real-time sync with Cloud Firestore across web and mobile.
+  * Search recipes by title and filter by categories (Breakfast, Lunch, Dinner, Dessert, Snacks).
+* **Recipe Creation & Management:** 
+  * Create custom recipes with step-by-step instructions and ingredient lists.
+  * Optional anonymous posting.
+  * Delete owned recipes.
+* **Interactive Reviews & Ratings:** 
+  * Star ratings and text reviews (max 50 words).
+  * Authors/Admins can delete comment reviews.
+* **Interactive Cooking View:** 
+  * Track cooked ingredients using an interactive checklist.
+
+---
+
+## 📁 Project Structure
+
+```text
+cookmate/
+├── .firebase/                  # Firebase deployment cache
+├── cookmate-mobile/            # Mobile Application (Expo / React Native)
+│   ├── assets/                 # App icons and image assets
+│   ├── scripts/                # Development and build scripts
+│   ├── src/                    # Mobile screens & components
+│   ├── App.js                  # Mobile app root component
+│   ├── app.json                # Expo configuration
+│   ├── eas.json                # Expo Application Services config
+│   └── package.json            # Mobile dependencies
+├── dist/                       # Production web build output
+├── public/                     # Public web assets
+├── src/                        # Web Application source code
+├── .firebaserc                 # Firebase project configuration
+├── firebase.json               # Firebase rules and hosting configuration
+├── index.html                  # Web HTML entry point
+├── package.json                # Web dependencies
+├── tailwind.config.js          # Tailwind CSS styling config
+├── vite.config.js              # Vite web bundler config
+└── README.md                   # Project documentation
